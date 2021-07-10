@@ -9,5 +9,6 @@ gem install jekyll bundler
 # Clone and start server
 git clone https://github.com/ZhiruiLi/ZhiruiLi.github.io.git myblog
 cd myblog
+bundle install
 bundle exec jekyll serve
 ```
