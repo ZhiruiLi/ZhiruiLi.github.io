@@ -5,8 +5,8 @@ locale: zh_CN
 description: 简单易懂的现代魔法
 logo: site-logo.jpg
 search: true
-# url: https://ZhiruiLi.github.io
-url: http://127.0.0.1:4000
+url: https://ZhiruiLi.github.io
+# url: http://127.0.0.1:4000
 
 # Jekyll configuration
 
