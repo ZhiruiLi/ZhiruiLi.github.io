@@ -12,9 +12,9 @@ comments: false
 share: true
 ---
 
-## 基本概念
+# 基本概念
 
-### 采样样本
+## 采样样本
 
 Prometheus 会定期去对数据进行采集，每一次采集的结果都是一次采样的样本（sample），这些数据会被存储为时间序列，也就是带有时间戳的 value stream，这些 value stream 归属于自己的监控指标。
 
@@ -24,7 +24,7 @@ Prometheus 会定期去对数据进行采集，每一次采集的结果都是一
 - 毫秒时间戳（timestamp）
 - 样本的值（value）
 
-### 监控指标
+## 监控指标
 
 一个监控指标被表示为下面的格式：
 
@@ -57,11 +57,11 @@ xxx坐标系{"X"="2","Y"="1"}
 
 说到这里，我们不难意识到，当我们上报数据的时候，这里的标签值不可以用一个数量非常多的值（例如用户 ID），否则会造成时间序列数量的极度膨胀。
 
-## 数据上报
+# 数据上报
 
 在 Prometheus 内部，所有的采样样本都是以时间序列的形式保存在时序数据库中，但为了方便理解和使用，Prometheus 定义了 4 种数据上报的类型，用户可以根据上报的数据内容选择合适的接口。下面以 [Go 的接口](https://godoc.org/github.com/prometheus/client_golang/prometheus)为例说明这几种类型的区别和应用场景。
 
-### 计数器 Counter
+## 计数器 Counter
 
 和一般理解的计数器一样，Prometheus 的 counter 也是一个只增不减的值，Go 语言中的接口如下：
 
@@ -100,7 +100,7 @@ httpReqs.WithLabelValues("404", "POST").Add(42)
 
 Counter 非常常见，也非常容易理解，常被用来监控类似「请求量」、「失败量」、「错误码出现次数」等场景。由于 counter 只增不减，所以我们不能用它来监控可能增可能减的数值（例如 goroutine 的数量），如果要监控这种数量，就应该用下面的 gauge。
 
-### 测量仪表 Gauge
+## 测量仪表 Gauge
 
 Gauge 的监控值可增可减，在 Go 语言中的接口如下：
 
@@ -131,7 +131,7 @@ type Gauge interface {
 
 可以看到，相比起 `Counter` 这里的 `Gauge` 增加了 `Dec` 和 `Sub` 这样的减少数值的接口，同时提供了 `Set` 和 `SetToCurrentTime` 这样的直接设置数值的接口。相比起 counter 而言，gauge 的数值要更加灵活通用。我们可以用它来监控前面提到的「goroutine 的数量」或者是其他可增可减的值，例如「CPU 使用率」、「内存使用率」等。
 
-### 直方图 Histogram
+## 直方图 Histogram
 
 尽管我们能够通过 gauge 监控可增可减的值，并可以在查询时求出其一段时间内的平均值，但是对于一些场景而言，这个能力还是存在相当大的局限性。典型的场景是请求时延、响应数据量大小等，在这些场景中，平均值可能并不能很好地反映问题。
 
@@ -173,7 +173,7 @@ fmt.Println(proto.MarshalTextString(metric))
 
 通过这样的方法，我们可以描绘出被观测值的分布情况。通过这个分布数据，我们还能算出类似「99% 的请求时延在多少以内」这样的数据。不过，当我们需要这样的数据时，需要对被观测数据有一定的先验知识才能真正使得计算结果比较准确。还是用刚刚提到的时延观测来举个极端一点的例子，假设我们将桶划分为 1ms、10ms、10s，那么我们得出的结果可能是 0% 的请求时延在 1ms 以内，0% 的请求时延在 10ms 以内，100% 的请求在 10s 以内，0% 的请求在 10s 以上，这样的结论显然没有什么意义，只有当我们对时延的长度本身有一个基本概念，并正确划分桶的大小时，我们才能更准确地计算出我们想要的结果。那假设我们就是对一个数据没有什么先验知识，那我们是否有更准确的方式计算出这个数据呢？Prometheus 给出的方法就是用 Summary。
 
-### 概要 Summary
+## 概要 Summary
 
 Summary 和 histogram 类似，也是用来观测数据的分布情况的，它的接口也和 histogram 一样：
 
@@ -213,11 +213,11 @@ fmt.Println(proto.MarshalTextString(metric))
 
 更多 histogram 和 summary 的对比可以参考[这一篇文章](https://prometheus.io/docs/practices/histograms/)。
 
-## 数据查询
+# 数据查询
 
 Prometheus 定义了一个名为 PromQL 的 DSL 用来进行数据查询。常用的 Prometheus 数据可视化工具 Grafana 里面的面板就是通过 PromQL 来进行数据查询的。
 
-### 瞬时向量 Instant Vector
+## 瞬时向量 Instant Vector
 
 假设我们有一个对 HTTP 请求量的 counter 名为 `http_requests_total`，那么我们只需要在 Grafana 面板的 query editor 中输入 `http_requests_total` 就可以看到数据了。这个 `http_requests_total` 是一个瞬时向量，也就是说，这个数据是 Prometheus 采集数据的那一刻数据的值。对于 counter 数据，我们看到的会是一条不断增长的线（采集到的值只增不减）。
 
@@ -281,7 +281,7 @@ mymetric_sum = 15.8
 
 如前所述，histogram 并没有存储数据采样点的值，只保留了总和和每一个区间的 counter。我们可以在 PromQL 中用 `histogram_quantile()` 函数来计算其值的分位数。由于 histogram 的分位数是在 PromQL 中指定的，因此它的灵活性比 summary 高（summary 只能获取上报时定下来的分位数）。
 
-### 范围向量 Range Vector
+## 范围向量 Range Vector
 
 前面提到我们用 `http_requests_total` 获取到单调递增的 HTTP 请求总数图像，但是这个对于我们而言并没有太大意义，我们希望看到的是类似「每分钟请求数量」这样的数据，PromQL 允许我们获取一段时间的数据，这个被称为范围向量。它的获取方式是在瞬时向量后面加一个中括号，里面填入需要的时间段长度，例如：
 
@@ -336,6 +336,6 @@ sum (increase(http_requests_total [1m])) by (code)
 
 更多对操作符的介绍可以在[这里](https://prometheus.io/docs/prometheus/latest/querying/operators)找到。另外，也可以在[这里](https://prometheus.io/docs/prometheus/latest/querying/examples/)找到更多的使用例子。
 
-## 总结
+# 总结
 
 Prometheus 基于时序数据库的查询实现了丰富复杂的语义，让用户能够灵活实现各种监控需求，为了能更好地表达自己的查询逻辑，我们需要先了解其中的基本语义，本文仅进行了较为简略的总结，更详细的可以参考[官方文档](https://prometheus.io/docs/prometheus/latest/getting_started/)和[官方最佳实践](https://prometheus.io/docs/practices/naming/)。
