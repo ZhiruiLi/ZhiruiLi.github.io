@@ -82,7 +82,7 @@ bool IsAvailableVersion(CfgItem const &item, int ver) {
     if (ver >= range.lo() && ver <= range.hi()) {
       return true; // 如果当前版本在范围内，就返回 true
     }
-   }
+  }
   return false; // 如果 version range 列表不为空，默认返回 false
 }
 ```
@@ -112,8 +112,9 @@ struct IsAvailableVersionHelper<
   CfgItem,
   lib::void_t<
     decltype(std::begin(std::declval<CfgItem>().version_ranges())->lo()),
-    decltype(std::begin(std::declval<CfgItem>().version_ranges())->hi())>>
-{ /* 实现同上 */ };
+    decltype(std::begin(std::declval<CfgItem>().version_ranges())->hi())
+  >
+> { /* 实现同上 */ };
 
 template<class CfgItem>
 bool IsAvailableVersion(CfgItem const &item, int ver) {
