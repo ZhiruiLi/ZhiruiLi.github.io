@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 从并发模型看 Go 的语言设计 
+title: 从并发模型看 Go 的语言设计
 excerpt: >-
   Go 语言是一个基于 CSP 模型原生支持并发的语言。在这篇文章中，我将通过几个例子，从其并发模型和并发程序的实现的角度，讨论一下 Go 语言设计的优劣。
 categories: articles
@@ -66,7 +66,7 @@ func MakeFactFunc() func(int) int {
 每一个 `FactCalc` 都会被作为一个独立的 goroutine 来执行，对于第 i 个 goroutine 而言，它先从第 i - 1 个 goroutine 中读入一个数字 `n`，然后，如果 `n > 0`，这个 goroutine 需要做 3 件事：
 
 1. 向第 i + 1 个 goroutine 写入一个 `n - 1`
-2. 从第 i + 1个  goroutine 处读回来一个数字 `r`
+2. 从第 i + 1 个 goroutine 处读回来一个数字 `r`
 3. 将 `n * r` 写入第 i - 1 个 goroutine
 
 否则，则向第 i - 1 个 goroutine 处写入一个 1。
@@ -179,7 +179,7 @@ func main() {
 
 ## 信号量
 
-一个信号量有两个操作，分别称为 V（`signal()`）与P（`wait()`）。其运作方式如下：
+一个信号量有两个操作，分别称为 V（`signal()`）与 P（`wait()`）。其运作方式如下：
 
 1. 初始化，信号标 S 一个非负数的整数值。
 2. 执行 P 操作（`wait()`）时，信号标 S 的值将尝试被减少。当信号标 S 非正数时，进程会阻塞等待；当信号标 S 为正数时，S 被成功减少，进程可以继续往下执行。
